@@ -10,5 +10,7 @@ def init_app(app):
         url_base_pathname='/management/'
     )
     with dash_app.server.app_context():
-        from .home import home_view
+        from .home import home_view, home_callback
     dash_app.layout = home_view
+
+    home_callback(dash_app)
