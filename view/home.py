@@ -5,8 +5,7 @@ from dash.dependencies import Input, Output, State, MATCH, ALL
 import datetime 
 import dash_bootstrap_components as dbc
 from dash import dcc
-from flask import request
-# from run import BASE_URL
+from flask import request, url_for
 import requests
 import pytz
 
@@ -32,7 +31,6 @@ home_view = html.Div([
                                 'height': '200',
                                 'lineHeight': '60px',
                                 'borderWidth': '1px',
-                                # 'borderStyle': 'dashed',
                                 'borderRadius': '5px',
                                 'margin': '10px',
                             }
@@ -49,7 +47,6 @@ home_view = html.Div([
                                 width=3
                             )
                         ]),
-                        # html.Br(),
                         dbc.Row([
                             dbc.Col(
                                 dbc.Button("add", outline=True, color="primary", className="mr-1", id='email_add'),
@@ -119,18 +116,14 @@ def home_callback(dash_app):
         LOCAL_TIMEZONE = pytz.timezone(dash_app.server.config['TIMEZONE'])
         tasks= get_recent_task()
         email_address = get_recipient_emails()
-        # print('task ',len(tasks), tasks)
         task_header = [html.Thead(html.Tr([html.Th("Subject"), html.Th("Status"), html.Th("Timestamp")]))]
         task_tr = []
         for i in range(len(tasks)):
-            # print(tasks[i])
-            # timestamp = datetime.datetime.strptime(tasks[i][2], '%Y-%m-%dT%H:%M:%S%z').astimezone(LOCAL_TIMEZONE)
             timestamp = tasks[i][2].astimezone(LOCAL_TIMEZONE)
             timestamp_str = "{}-{}-{} {}:{}:00".format(timestamp.year, timestamp.month, timestamp.day, timestamp.hour, timestamp.minute)
             task_tr.append( html.Tr([html.Td(tasks[i][0]),html.Td(tasks[i][1]),html.Td( timestamp_str )]) )
         task_body = [html.Tbody(task_tr)]
         task_table = dbc.Table(task_header + task_body)
-        # print('email address', email_address)
         email_rows = [html.Tr([html.Td(email)]) for email in email_address]
         email_table = html.Tbody(email_rows)
         return email_table, task_table
@@ -145,15 +138,9 @@ def home_callback(dash_app):
             return ''
         if new_email_address == '' or new_email_address is None:
             return ''
-        # print('print something ')
         endpoint = '/'.join(request.base_url.split('/')[:3] + ['add_recipient_email'])
         data_to_send = {'email_address':new_email_address}
-        # print(new_email_address)
         res = requests.post(endpoint, data=data_to_send)
-        # print(res.text)
-        # with dash_app.server.app_context():
-        #     from models.operations import add_new_recipient
-        # add_new_recipient(new_email_address)
         return ''
     
     @dash_app.callback(
@@ -168,20 +155,13 @@ def home_callback(dash_app):
         State('timepicker', 'value')] 
     )
     def save_email_callback(n_clicks, subject, content, date_input, time_input):
-        # if n_clicks is None:
-        #     return subject, content, date_input, time_input
-        print(subject, content, date_input, time_input)
         if None in [n_clicks, subject, content, date_input, time_input] :
             return subject, content, date_input, time_input
-        print('{} {}:00'.format(date_input, time_input))
         endpoint = '/'.join(request.base_url.split('/')[:3] + ['save_emails'])
-
         data_to_send = {
             'email_subject':subject,
             'email_content':content,
             'timestamp':'{} {}:00'.format(date_input, time_input)
             }
-        # print(new_email_address)
         res = requests.post(endpoint, data=data_to_send)
-        # print('passss')
         return (None, None, None, None)
