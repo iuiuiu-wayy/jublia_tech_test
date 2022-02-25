@@ -15,30 +15,21 @@ def init_routes(app, mail, celery):
         print(time_now, time_input)
 
         with app.app_context():
-            from models.database import Emails, Session, Recipient_emails
-        
+            from models.operations import assign_email_status, get_email_recipient
         if time_now > time_input:
-            session = Session()
-            email = session.query(Emails).filter_by(event_id=email_id).all()[0]
-            email.status = "FAIL"
+            status = "FAIL"
 
         else:
             time.sleep((time_input - time_now).seconds)
-            session = Session()
-            recipients = session.query(Recipient_emails.email_address).all()
+            recipients = get_email_recipient
             msg = Message(
                 email_subject,
                 sender= 'wahyu.amanullah27@gmail.com',
-                recipients = list( *zip(*recipients) ) 
+                recipients = recipients
             )
             msg.body = email_content
-            # mail.send(msg)
-            email = session.query(Emails).filter_by(event_id=email_id).all()[0]
-            email.status = "SUCCESS"
-
-        # session = Session()
-        session.add(email)
-        session.commit()
+            status = "SUCCESS"
+        assign_email_status(email_id, status)
         print('task finished')
 
     @app.route("/")
@@ -52,23 +43,11 @@ def init_routes(app, mail, celery):
         email_timestamp = request.form.get('timestamp') + '+0800'
         print(email_subject, email_content, email_timestamp)
         with app.app_context():
-            from models.database import Emails, Session
-        email= Emails(email_subject = email_subject, email_content=email_content, timestamp=email_timestamp, celery_id='-', status="PENDING")
-        session = Session()
-        session.add(email)
-        session.commit()
-        # time_now = datetime.datetime
-        async_task = send_mail.delay(email_subject, email_content, email_timestamp, email.event_id)
+            from models.operations import new_emails, new_email_celery_id
         
-        # task = Tasks(status='PENDING', celery_id=async_task.id)
-        # email= Emails(email_subject = email_subject, email_content=email_content, timestamp=email_timestamp, celery_id=async_task.id, status="PENDING")
-        email.celery_id = async_task.id
-        # session = Session()
-        session.add(email)
-        session.commit()
-        # from run import send_email
-        # job = q.enqueue(send_email)
-        # print(f"Task ({job.id}) added to queue at {job.enqueued_at}")
+        email_id = new_emails(email_subject = email_subject, email_content=email_content, timestamp=email_timestamp, celery_id='-', status="PENDING")
+        async_task = send_mail.delay(email_subject, email_content, email_timestamp, email_id)
+        new_email_celery_id(email_id, async_task.id)
         return make_response(
             'Test worked!',
             200,

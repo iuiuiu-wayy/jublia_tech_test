@@ -16,12 +16,12 @@ LOCAL_TIMEZONE = pytz.timezone('Singapore')
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_object(Config)
 
-#celery -A run.celery worker --pool=gevent --concurreny=500 --loglevel=info
+#celery -A run.celery worker --pool=gevent --concurrency=500 --loglevel=info
 celery = Celery(
     'run',
     backend=app.config['CELERY_RESULT_BACKEND'],
     broker=app.config['CELERY_BROKER_URL'],
-    CELERY_IMPORTS=("run", 'control', 'control.celery_tasks')
+    CELERY_IMPORTS=("run", 'control')
 )
 class ContextTask(celery.Task):
     def __call__(self, *args, **kwargs):
