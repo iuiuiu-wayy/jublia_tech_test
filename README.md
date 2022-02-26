@@ -6,7 +6,27 @@ Dockerfile and docker-compose.yml files are used to create container for this ap
 
 To run the app, follow the instructions below:
 1. navigate to the app directory
-2. Run the following code to create container:
+2. Add config.py file
+
+class Config:
+    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:postgres@db:5432/postgres' # 'postgresql://postgres:project@localhost/JubliaDB'
+    SQLALCHEMY_ECHO = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 465
+    MAIL_USERNAME = 'email@gmail.com'        <<<<< add email
+    MAIL_PASSWORD = 'password'               <<<<< add password
+    MAIL_DEFAULT_SENDER = 'email@gmail.com'  <<<<< add email
+    DEBUG = True
+    MAIL_USE_TLS = False
+    MAIL_USE_SSL = True
+    CELERY_BROKER_URL='redis://redis:6379'
+    CELERY_RESULT_BACKEND='redis://redis:6379'
+    TIMEZONE = 'Singapore'
+    
+    
+4. Run the following code to create container:
 
   docker-compose build
   
