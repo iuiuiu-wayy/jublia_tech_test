@@ -9,6 +9,7 @@ To run the app, follow the instructions below:
 2. Add config.py file
 code:
 
+```
 class Config:
     SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:postgres@db:5432/postgres' # 'postgresql://postgres:project@localhost/JubliaDB'
     SQLALCHEMY_ECHO = False
@@ -24,7 +25,7 @@ class Config:
     CELERY_BROKER_URL='redis://redis:6379'
     CELERY_RESULT_BACKEND='redis://redis:6379'
     TIMEZONE = 'Singapore'
-    
+ ```
     
 4. Run the following code to create container:
 
