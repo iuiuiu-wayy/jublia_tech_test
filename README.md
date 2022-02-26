@@ -7,8 +7,11 @@ Dockerfile and docker-compose.yml files are used to create container for this ap
 To run the app, follow the instructions below:
 1. navigate to the app directory
 2. Run the following code to create container:
+
   docker-compose build
+  
   docker-compose up
+  
 
 3. The app is accessible through browser 127.0.0.1:5000/ (recommended using google chrome)
 
