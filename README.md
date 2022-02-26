@@ -28,12 +28,12 @@ class Config:
  ```
     
 4. Run the following code to create container:
-
+```
   docker-compose build
-  
+```
+```
   docker-compose up
-  
-
+```
 3. The app is accessible through browser 127.0.0.1:5000/ (recommended using google chrome)
 
 The app provide user interface. User first need to add email address to the database by typing the email address and click on add email address.
