@@ -35,4 +35,4 @@ view.init_app(app)
 control.init_app(app, mail, celery)
 
 if __name__ == '__main__':
-    app.run(debug=True, threaded=True)
+    app.run(debug=True, threaded=True, host="0.0.0.0")
