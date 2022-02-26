@@ -6,8 +6,6 @@ import os
 sys.path.append(os.getcwd())
 from config import Config
 import models, view, control
-import time
-import datetime
 import pytz
 from flask_mail import Mail
 

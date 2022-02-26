@@ -1,4 +1,3 @@
-import string
 from . import db
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import Column, Integer, String, DateTime, Sequence, ForeignKey, UnicodeText

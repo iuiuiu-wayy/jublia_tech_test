@@ -7,11 +7,12 @@ def init_routes(app, mail, celery):
     LOCAL_TIMEZONE = pytz.timezone(app.config['TIMEZONE'])
     
     @celery.task()
-    def send_mail(email_subject, email_content, time_input, email_id): 
-        print('task starting')
+    def send_mail(email_subject, email_content, time_input, email_id):
 
+        if isinstance(time_input,str):
+            input_format = "%Y-%m-%dT%H:%M:%S%z" #2022-02-26T13:32:00+08:00
+            time_input = datetime.datetime.strptime(time_input, input_format).astimezone(LOCAL_TIMEZONE)
         time_now = datetime.datetime.now().astimezone(LOCAL_TIMEZONE)
-        # time_input = datetime.datetime.strptime(email_timestamp, '%Y-%m-%d %H:%M:%S%z').astimezone(LOCAL_TIMEZONE)
         with app.app_context():
             from models.operations import assign_email_status, get_email_recipient
         if time_now > time_input:
@@ -19,16 +20,18 @@ def init_routes(app, mail, celery):
 
         else:
             time.sleep((time_input - time_now).seconds)
-            recipients = get_email_recipient
+            recipients = get_email_recipient()
             msg = Message(
                 email_subject,
                 sender= 'wahyu.amanullah27@gmail.com',
                 recipients = recipients
             )
             msg.body = email_content
+            # mail.send(msg)
             try:
                 mail.send(msg)
             except Exception as e:
+                print("error msg: ", e)
                 status = "FAIL"
             else:
                 status = "SUCCESS"
@@ -61,8 +64,8 @@ def init_routes(app, mail, celery):
         with app.app_context():
             from models.operations import new_emails, new_email_celery_id
         
-        email_id = new_emails(email_subject = email_subject, email_content=email_content, timestamp=email_timestamp, celery_id='-', status="PENDING")
-        async_task = send_mail.delay(email_subject, email_content, email_timestamp, email_id)
+        email_id = new_emails(email_subject = email_subject, email_content=email_content, timestamp=time_input, celery_id='-', status="PENDING")
+        async_task = send_mail.delay(email_subject, email_content, time_input, email_id)
         new_email_celery_id(email_id, async_task.id)
         r = make_response('Task submitted', 200,)
         r.mimetype = 'application/json'
